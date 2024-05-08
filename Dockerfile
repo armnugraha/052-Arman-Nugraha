@@ -15,6 +15,5 @@ WORKDIR $APP_DIR
 EXPOSE 80
 
 # Instalation App
-# RUN composer install -vvv
-
-# RUN npm install
+RUN composer install -vvv
+RUN npm install
