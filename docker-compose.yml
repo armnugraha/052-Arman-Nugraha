@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  app:
+    container_name: mvs_arman
+    # restart: always
+    command: sh -c "cd /var/www && php artisan serve --host 0.0.0.0"
+    # command: tail -f /dev/null
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./
+        target: /var/www
+    ports:
+      - "8002:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+
+networks:
+  default: {}
+
