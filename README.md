@@ -21,7 +21,8 @@ Fitur:
 - Clone repository
 - Setup .env
 - Open cmd
-- Run composer install, npm i, etc
+- Run composer install, npm i, npm run build
+- Open localhost:[port]
 
 If using Docker
 
@@ -31,6 +32,7 @@ If using Docker
 - Setup .env
 - Open cmd
 - Run docker compose up -d
+- Open localhost:8002
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
