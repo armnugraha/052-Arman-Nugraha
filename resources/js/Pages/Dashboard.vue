@@ -15,53 +15,13 @@ let transaction = reactive({
         {
             name: null,
             total_price: 0,
-            detail: {
-                name: null,
-                qty: 0,
-                price: 0,
-            },
-            temp: {
-                is_detail: false,
-                discount_price: 0,
-                discount_percent: 0
-            }
-        },
-        {
-            name: null,
-            total_price: 0,
-            detail: {
-                name: null,
-                qty: 0,
-                price: 0,
-            },
-            temp: {
-                is_detail: false,
-                discount_price: 0,
-                discount_percent: 0
-            }
-        },
-        {
-            name: null,
-            total_price: 0,
-            detail: {
-                name: null,
-                qty: 0,
-                price: 0,
-            },
-            temp: {
-                is_detail: false,
-                discount_price: 0,
-                discount_percent: 0
-            }
-        },
-        {
-            name: null,
-            total_price: 0,
-            detail: {
-                name: null,
-                qty: 0,
-                price: 0,
-            },
+            detail: [
+                {
+                    name: null,
+                    qty: 0,
+                    price: 0,
+                }
+            ],
             temp: {
                 is_detail: false,
                 discount_price: 0,
@@ -74,10 +34,6 @@ let transaction = reactive({
 const changeDetail = (e) => {
     e.total_price = 0
 
-    // e.detail.name = null
-    // e.detail.qty = 0
-    // e.detail.price = 0
-
     e.temp.is_detail = !e.temp.is_detail
     e.temp.discount_price = 0
     e.temp.discount_percent = 0
@@ -88,11 +44,13 @@ const addTransaction = () => {
         {
             name: null,
             total_price: 0,
-            detail: {
-                name: null,
-                qty: 0,
-                price: 0,
-            },
+            detail: [
+                {
+                    name: null,
+                    qty: 0,
+                    price: 0,
+                }
+            ],
             temp: {
                 is_detail: false,
                 discount_price: 0,
@@ -103,6 +61,19 @@ const addTransaction = () => {
 };
 const deleteTransaction = (index) => {
     transaction.orders.splice(index, 1);
+};
+
+const addDetailTransaction = (item) => {
+    item.detail.push(
+        {
+            name: null,
+            qty: 0,
+            price: 0
+        }
+    )
+};
+const deleteDetailTransaction = (item, index) => {
+    item.detail.splice(index, 1);
 };
 
 const numberInput = (e) => {
@@ -157,7 +128,7 @@ const percentDiscount = (e) => {
                     <div class="w-4/5 p-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                             <!-- Card -->
-                            <div v-for="(item, i) in transaction.orders" :key="i" class="bg-white rounded-lg shadow-md">
+                            <div v-for="(item, i) in transaction.orders" :key="i" class="bg-white rounded-lg shadow-md h-fit-content">
                                 <div class="p-4">
                                     <div>
                                         <p class="flex fr mb-4">
@@ -181,27 +152,33 @@ const percentDiscount = (e) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div v-if="item.temp.is_detail" class="result">
-                                    <div class="p-4">
-                                        <div class="flex">
-                                            <div class="mb-4 mr-4">
-                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
-                                                <input type="text" v-model="item.detail.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                <div v-if="item.temp.is_detail">
+                                    <div class="result">
+                                        <div v-for="(detail, d) in item.detail" :key="d" class="detail-item">
+                                            <div class="flex">
+                                                <div class="mb-4 mr-4">
+                                                    <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
+                                                    <input type="text" v-model="detail.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                </div>
+                                                <div class="mb-4">
+                                                    <span @click="deleteDetailTransaction(item, d)" class="mdi mdi-close"></span>
+                                                </div>
                                             </div>
-                                            <div class="mb-4">
-                                                <span class="mdi mdi-close"></span>
+                                            <div class="flex">
+                                                <div class="mb-4 mr-4">
+                                                    <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Qty</label>
+                                                    <input type="text" v-model="detail.qty" placeholder="xxx" @keypress="[numberInput($event)]" @input="addSeparator($event, detail, 'qty')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label for="total-price-input" class="block text-sm font-medium text-gray-700">Harga</label>
+                                                    <input type="text" v-model="detail.price" placeholder="xxx" @keypress="[numberInput($event)]" @input="addSeparator($event, detail, 'price')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="flex">
-                                            <div class="mb-4 mr-4">
-                                                <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Qty</label>
-                                                <input type="text" v-model="item.detail.qty" placeholder="xxx" @keypress="[numberInput($event)]" @input="addSeparator($event, item.detail, 'qty')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                            </div>
-                                            <div class="mb-4">
-                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Harga</label>
-                                                <input type="text" v-model="item.detail.price" placeholder="xxx" @keypress="[numberInput($event)]" @input="addSeparator($event, item.detail, 'price')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                            </div>
-                                        </div>
+                                    </div>
+
+                                    <div class="result p-4 text-center">
+                                        <p @click="addDetailTransaction(item)"><span class="mdi mdi-plus text-center"></span> Tambah List</p>
                                     </div>
                                 </div>
                                 <div class="result">
@@ -213,7 +190,7 @@ const percentDiscount = (e) => {
                             </div>
     
                             <!-- Add more cards as needed -->
-                            <div class="bg-white rounded-lg shadow-md p-4">
+                            <div class="bg-white rounded-lg shadow-md p-4 h-fit-content">
                                 <div class="add-more">
                                     <p @click="addTransaction"><span class="mdi mdi-plus text-center"></span> Tambah List</p>
                                 </div>

@@ -28,9 +28,14 @@
 .rounded-full {
     border-radius: 9999px;
 }
+
 .h-1\.5 {
     height: 0.375rem;
 }
+.h-fit-content {
+    height: fit-content;
+}
+
 .price-input {
     text-align: center;
     color: #01016F;
@@ -43,6 +48,12 @@
 .space-between {
     justify-content: space-between;
 }
+.detail-item {
+    padding: 1rem;
+}
+.detail-item:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB;
+}
 .result {
     border-top: 2px solid #E5E7EB;
 }
@@ -52,11 +63,16 @@
     padding: 4px 16px;
     border-radius: 24px;
 }
+.result:has(.detail-item) {
+    max-height: calc(64vh - 280px);
+    overflow: auto;
+}
 .add-more {
+    cursor: pointer;
     text-align: center;
     border: 1px solid #E5E7EB;
     border-radius: 24px;
-    margin-top: calc(40% - 8px);
+    margin-top: calc(1vh - 8px);
 }
 .add-more > p {
     padding: 16px;
