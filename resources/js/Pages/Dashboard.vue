@@ -139,7 +139,7 @@ const percentDiscount = (e) => {
         percent = ((discount / price) * 100).toFixed();
         e.temp.discount_percent = percent
 
-    return !isNaN(percent) && percent <= 100 ? percent : 0
+    return !isNaN(percent) ? percent : 0
 }
 </script>
 
@@ -174,7 +174,7 @@ const percentDiscount = (e) => {
                                     <div>
                                         <p>Diskon Voucher</p>
                                         <div class="flex w-full h-1.5 bg-gray-200 rounded-full overflow-hidden dark:bg-neutral-700" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="flex flex-col justify-center rounded-full overflow-hidden bg-blue-600 text-xs text-white text-center whitespace-nowrap transition duration-500 dark:bg-blue-500" :style="`width: ${percentDiscount(item)}%`"></div>
+                                            <div class="flex flex-col justify-center rounded-full overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500" :class="percentDiscount(item) <= 100 ? 'bg-blue-600 dark:bg-blue-500' : 'bg-red-600 dark:bg-red-500'" :style="`width: ${percentDiscount(item)}%`"></div>
                                         </div>
                                         <div class="text-right">
                                             <span>{{ percentDiscount(item) }}%</span>

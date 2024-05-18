@@ -32,7 +32,7 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
-                                <NavLink :href="route('transactions')" :active="route().current('transactions')">
+                                <NavLink v-if="$page.props.auth.user" :href="route('transactions')" :active="route().current('transactions')">
                                     Transactions
                                 </NavLink>
                             </div>
@@ -41,14 +41,22 @@ const showingNavigationDropdown = ref(false);
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <!-- Settings Dropdown -->
                             <div class="ms-3 relative">
-                                <Dropdown align="right" width="48">
+                                <Link
+                                    v-if="!$page.props.auth.user"
+                                    :href="route('login')"
+                                    class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:focus-visible:ring-white"
+                                >
+                                    Log in
+                                </Link>
+
+                                <Dropdown v-else align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button
                                                 type="button"
                                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                                             >
-                                                {{ $page.props?.auth?.user?.name }}
+                                                {{ $page.props.auth.user.name }}
 
                                                 <svg
                                                     class="ms-2 -me-0.5 h-4 w-4"
@@ -67,8 +75,6 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('login')"> Login </DropdownLink>
-                                        <DropdownLink :href="route('register')"> Register </DropdownLink>
                                         <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
                                             Log Out
