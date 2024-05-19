@@ -132,7 +132,7 @@ const percentDiscount = (e) => {
                                 <div class="p-4">
                                     <div>
                                         <p class="flex fr mb-4">
-                                            <label class="inline-flex items-center cursor-pointer mr-4">
+                                            <label v-if="$page.props.auth.user" class="inline-flex items-center cursor-pointer mr-4">
                                                 <input type="checkbox" @change="changeDetail(item)" class="sr-only peer">
                                                 <div :class="item.temp.is_detail ? 'peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white peer-checked:bg-blue-600' : 'bg-gray-200'"class="relative w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                                             </label>
@@ -203,7 +203,7 @@ const percentDiscount = (e) => {
                         <div class="mb-4">
                             <p>Detail Informasi:</p>
                         </div>
-                        <div class="mb-4">
+                        <div v-if="$page.props.auth.user" class="mb-4">
                             <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
                             <input type="text" v-model="transaction.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         </div>
@@ -215,7 +215,7 @@ const percentDiscount = (e) => {
                             <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Total Bayar</label>
                             <input type="text" v-model="transaction.total_price" placeholder="xxx" @keypress="[numberInput($event)]" @input="addSeparator($event, transaction, 'total_price')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                         </div>
-                        <div class="mb-4">
+                        <div v-if="$page.props.auth.user" class="mb-4">
                             <PrimaryButton>Simpan</PrimaryButton>
                         </div>
                     </div>
