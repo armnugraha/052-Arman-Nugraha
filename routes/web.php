@@ -19,9 +19,8 @@ use Inertia\Inertia;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/transactions', function () {
-        return Inertia::render('Transactions');
-    })->name('transactions');
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.create');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
