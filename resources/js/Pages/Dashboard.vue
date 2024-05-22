@@ -3,16 +3,21 @@ import { reactive, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import InputError from '@/Components/InputError.vue';
 
 let state = reactive({
     loading: false
 })
 let transaction = useForm({
     name: '',
-    total_discount: 0,
+    total_payment: 0,
     total_price: 0,
-    orders: [
-        {
+    orders: []
+})
+
+onMounted(() => {
+    for (let index = 0; index < 4; index++) {
+        transaction.orders.push({
             name: null,
             total_price: 0,
             detail: [
@@ -27,8 +32,8 @@ let transaction = useForm({
                 discount_price: 0,
                 discount_percent: 0
             }
-        }
-    ]
+        })
+    }
 })
 
 const changeDetail = (e) => {
@@ -104,10 +109,10 @@ const sumPrice = (item) => {
 
 const discount = (e) => {
     const priceNumber = removeSeparator(e.total_price),
-        total_discount   = removeSeparator(transaction.total_discount),
+        total_payment   = removeSeparator(transaction.total_payment),
         total_price = removeSeparator(transaction.total_price);
 
-    e.temp.discount_price = priceNumber ? Math.round( ((priceNumber) / total_discount*total_price) ).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 0
+    e.temp.discount_price = priceNumber ? Math.round( ((priceNumber) / total_payment*total_price) ).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 0
     return !isNaN(e.temp.discount_price) ? e.temp.discount_price : 0;
 }
 const percentDiscount = (e) => {
@@ -219,10 +224,11 @@ const submit = () => {
                             <div v-if="$page.props.auth.user" class="mb-4">
                                 <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
                                 <input type="text" v-model="transaction.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                <InputError class="mt-2" :message="transaction.errors.name" />
                             </div>
                             <div class="mb-4">
                                 <label for="total-price-input" class="block text-sm font-medium text-gray-700">Total Harga</label>
-                                <input type="text" v-model="transaction.total_discount" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_discount')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                <input type="text" v-model="transaction.total_payment" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_payment')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                             </div>
                             <div class="mb-4">
                                 <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Total Bayar</label>

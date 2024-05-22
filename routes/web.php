@@ -17,6 +17,8 @@ use Inertia\Inertia;
 // });
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/sh/{code}', [DashboardController::class, 'redirect_url'])->name('sh');
+Route::get('/invoice/detail/{id}', [DashboardController::class, 'invoice'])->name('invoice');
 
 Route::middleware('auth')->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
