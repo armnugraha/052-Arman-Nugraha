@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('trx_code')->unique();
             $table->integer('total_price');
             $table->integer('total_payment');
-            $table->string('short_url')->unique();
-            $table->string('full_url')->unique();
+            $table->string('short_url')->nullable()->unique();
+            $table->string('full_url')->nullable()->unique();
             $table->timestamps();
         });
     }
