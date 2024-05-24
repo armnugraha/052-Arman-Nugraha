@@ -16,10 +16,19 @@ class Transaction extends Model
      */
     protected $fillable = [
         'user_id',
+        'name',
         'trx_code',
         'total_price',
         'total_payment',
         'short_url',
         'full_url'
     ];
+
+    protected $appends = ['formatted_created_at'];
+
+    // Accessor for formatted_created_at
+    public function getFormattedCreatedAtAttribute()
+    {
+        return $this->created_at->format('Y-m-d');
+    }
 }
