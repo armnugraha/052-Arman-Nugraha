@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index();
+            $table->string('name')->nullable();
             $table->string('trx_code')->unique();
             $table->integer('total_price');
             $table->integer('total_payment');
