@@ -47,13 +47,20 @@ class TransactionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // $request->validate([
+        //     'total_price' => 'required|min:0|not_in:0',
+        // ]);
+
         // Start Transaction
         DB::beginTransaction();
+
         try {
+            // (string)Str::uuid()
             // Create
             $transaction = Transaction::create([
                 'user_id' => $request->user()->id,
-                'trx_code' => 'INV/'.Carbon::now()->format('Ymd').'/MVS/'.(string)Str::uuid(),
+                'name' => $request->name,
+                'trx_code' => 'INV/'.Carbon::now()->format('Ymd').'/MVS/'.Str::random(16),
                 'total_price' => intval(str_replace('.','',$request->total_price)),
                 'total_payment' => intval(str_replace('.','',$request->total_payment))
             ]);
@@ -112,7 +119,56 @@ class TransactionController extends Controller
      */
     public function edit(Transaction $transaction)
     {
-        //
+        // Start Transaction
+        DB::beginTransaction();
+        try {
+            // Create
+            $transaction = Transaction::create([
+                'user_id' => $request->user()->id,
+                'trx_code' => 'INV/'.Carbon::now()->format('Ymd').'/MVS/'.(string)Str::uuid(),
+                'total_price' => intval(str_replace('.','',$request->total_price)),
+                'total_payment' => intval(str_replace('.','',$request->total_payment))
+            ]);
+
+            // Update URL Public
+            $short_url = route('sh', ['code' => Str::random(16)]);
+            $full_url = URL::signedRoute(
+                'invoice', ['id' => $transaction->id]
+            );
+            $transaction->update([
+                'short_url' => $short_url,
+                'full_url' => $full_url
+            ]);
+            
+            // Create orders
+            foreach ($request->orders as $order) {
+                $create_order = Order::create([
+                    'transaction_id' => $transaction->id,
+                    'name' => $order['name'],
+                    'total_price' => intval(str_replace('.','',$order['total_price']))
+                ]);
+
+                // Create order detail
+                if ($order['temp']['is_detail'])
+                    foreach ($order['detail'] as $detail) {
+                        OrderDetail::create([
+                            'order_id' => $create_order->id,
+                            'name' => $detail['name'],
+                            'qty' => intval(str_replace('.','',$detail['qty'])),
+                            'price' => intval(str_replace('.','',$detail['price']))
+                        ]);
+                    }
+            }
+
+            // All success
+            DB::commit();
+        } catch (\Throwable $th) {
+            dd($th);
+            // something went wrong
+            DB::rollback();
+        }
+
+        return redirect(route('dashboard', absolute: false));
     }
 
     /**
