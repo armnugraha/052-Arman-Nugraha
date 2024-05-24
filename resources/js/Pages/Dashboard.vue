@@ -1,7 +1,8 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
+import Head from '@/Components/Head.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 
@@ -16,6 +17,10 @@ let transaction = useForm({
 })
 
 onMounted(() => {
+    generateOrders()
+})
+
+const generateOrders = () => {
     for (let index = 0; index < 4; index++) {
         transaction.orders.push({
             name: null,
@@ -34,7 +39,7 @@ onMounted(() => {
             }
         })
     }
-})
+}
 
 const changeDetail = (e) => {
     e.total_price = 0
@@ -125,122 +130,173 @@ const percentDiscount = (e) => {
 }
 
 const submit = () => {
-    transaction.post(route('transactions.create'), {
-        // onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+    if(confirm('Apakah data sudah benar?')){
+        state.loading = true
+        transaction.post(route('transactions.create'), {
+            onFinish: () => {
+                alertify.success("Data berhasil dibuat")
+                transaction.reset('name', 'total_payment', 'total_price')
+                transaction.name = ''
+                transaction.total_payment = 0
+                transaction.total_price = 0
+                transaction.orders = []
+                generateOrders()
+                state.loading = false
+            },
+            onError: (e) => {
+                alertify.failed("Oops something went wrong")
+                state.loading = false
+            }
+        });
+    }
 };
 </script>
 
 <template>
-    <Head title="Dashboard" />
-
+    
     <AuthenticatedLayout>
-        <!-- <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
-        </template> -->
-        <div class="mt-24">
-            <div class="flex justify-center">
-                <form @submit.prevent="submit">
-                    <div class="flex w-full max-w-screen-lg">
-                        <!-- Left Column -->
-                        <div class="w-4/5 p-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
-                                <!-- Card -->
-                                <div v-for="(item, i) in transaction.orders" :key="i" class="bg-white rounded-lg shadow-md h-fit-content">
-                                    <div class="p-4">
-                                        <div>
-                                            <p class="flex fr mb-4">
-                                                <label v-if="$page.props.auth.user" class="inline-flex items-center cursor-pointer mr-4">
-                                                    <input type="checkbox" @change="changeDetail(item)" class="sr-only peer">
-                                                    <div :class="item.temp.is_detail ? 'peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white peer-checked:bg-blue-600' : 'bg-gray-200'"class="relative w-11 h-6 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                                </label>
-                                                <span @click="deleteTransaction(i)" class="mdi mdi-close"></span>
-                                            </p>
-                                            <p class="text-center mb-4">
-                                                <input type="text" v-model="item.total_price" :disabled="item.temp.is_detail" @keypress="[number($event)]" @input="addDots($event, item, 'total_price')" :class="item.temp.is_detail ? 'disabled' : ''" class="price-input mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md" placeholder="xxx">
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p>Diskon Voucher</p>
-                                            <div class="flex w-full h-1.5 bg-gray-200 rounded-full overflow-hidden dark:bg-neutral-700" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                <div class="flex flex-col justify-center rounded-full overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500" :class="percentDiscount(item) <= 100 ? 'bg-blue-600 dark:bg-blue-500' : 'bg-red-600 dark:bg-red-500'" :style="`width: ${percentDiscount(item)}%`"></div>
-                                            </div>
-                                            <div class="text-right">
-                                                <span>{{ percentDiscount(item) }}%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div v-if="item.temp.is_detail">
-                                        <div class="result">
-                                            <div v-for="(detail, d) in item.detail" :key="d" class="detail-item">
-                                                <div class="flex">
-                                                    <div class="mb-4 mr-4">
-                                                        <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
-                                                        <input type="text" v-model="detail.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                                    </div>
-                                                    <div class="mb-4">
-                                                        <span @click="deleteDetailTransaction(item, d)" class="mdi mdi-close"></span>
-                                                    </div>
-                                                </div>
-                                                <div class="flex">
-                                                    <div class="mb-4 mr-4">
-                                                        <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Qty</label>
-                                                        <input type="text" v-model="detail.qty" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, detail, 'qty')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                                    </div>
-                                                    <div class="mb-4">
-                                                        <label for="total-price-input" class="block text-sm font-medium text-gray-700">Harga</label>
-                                                        <input type="text" v-model="detail.price" placeholder="xxx" @keypress="[number($event)]" @input="[addDots($event, detail, 'price'), sumPrice(item)]" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+        <Head title="Dashboard" />
 
-                                        <div class="result p-4 text-center">
-                                            <p @click="addDetailTransaction(item)" class="cursor-pointer"><span class="mdi mdi-plus text-center"></span> Tambah List</p>
+        <form @submit.prevent="submit">
+            <div class="d-xl-flex">
+                <div class="w-100">
+                    <div class="d-md-flex">
+                        <div class="w-100">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div>
+                                        <div class="row mb-3">
+                                            <div class="col-lg-4 col-sm-6">
+                                                <div class="search-box mb-2">
+                                                    <div class="position-relative">
+                                                        <input type="text" class="form-control bg-light border-light rounded" placeholder="Search...">
+                                                        <i class="mdi mdi-close-icon"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-sm-6">
+                                                <div class="mt-4 mt-sm-0 d-flex align-items-center justify-content-sm-end">
+                                                    <div class="mb-2">
+                                                        <button @click="addTransaction" class="btn btn-primary" type="button">
+                                                            <i class="mdi mdi-plus"></i> Tambah List
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="result">
-                                        <div class="p-4 flex space-between">
-                                            <p>Harga hasil: </p>
-                                            <span class="result-span">{{ discount(item)  }}</span>
-                                        </div>
+
+                                    <div>
+                                        <div class="row">
+                                            <div v-for="(item, i) in transaction.orders" :key="i" class="col-xl-4 col-sm-6">
+                                                <div class="card shadow-none border">
+                                                    <div class="card-body p-3">
+                                                        <div>
+                                                            <div class="float-end ms-2">
+                                                                <div class="mb-2">
+                                                                    <a @click="deleteTransaction(i)" class="font-size-16 text-muted" role="button">
+                                                                        <i class="mdi mdi-close"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <div class="me-3 mb-3">
+                                                                <div class="form-check form-switch form-switch-md mb-2">
+                                                                    <input class="form-check-input" type="checkbox" :disabled="!$page.props.auth.user" @change="$page.props.auth.user ? changeDetail(item) : null">
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-center mb-4">
+                                                                    <input type="text" v-model="item.total_price" :disabled="item.temp.is_detail" @keypress="[number($event)]" @input="addDots($event, item, 'total_price')" :class="item.temp.is_detail ? 'disabled' : ''" class="price-input mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm border-gray-300 rounded-md" placeholder="xxx">
+                                                                </p>
+                                                                <div class="mt-3">
+                                                                    <div class="d-flex space-between align-center mb-1">
+                                                                        <p class="text-muted font-size-13">Diskon Voucher: Rp {{ discount(item)  }}</p>
+                                                                        <template v-if="percentDiscount(item) <= 100">
+                                                                            <span class="badge badge-outline-primary">
+                                                                                {{ `${percentDiscount(item)}%` }}
+                                                                                <i v-if="percentDiscount(item) > 0" class="mdi mdi-arrow-down text-primary"></i>
+                                                                            </span>
+                                                                        </template>
+                                                                        <template v-else>
+                                                                            <span class="badge badge-outline-danger">
+                                                                                {{ `${percentDiscount(item)}%` }}
+                                                                                <i class="mdi mdi-arrow-up text-danger"></i>
+                                                                            </span>
+                                                                        </template>
+                                                                    </div>
+                                                                    <div class="progress animated-progess custom-progress">
+                                                                        <div class="progress-bar" :class="percentDiscount(item) > 100 ? 'bg-danger' : null" role="progressbar" :style="`width: ${percentDiscount(item)}%`" :aria-valuenow="percentDiscount(item)" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <template v-if="item.temp.is_detail">
+                                                                <div class="mt-4 result">
+                                                                    <div v-for="(detail, d) in item.detail" :key="d" class="detail-item">
+                                                                        <div class="flex space-between">
+                                                                            <div class="mb-2 mr-4">
+                                                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
+                                                                                <input type="text" v-model="detail.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                                            </div>
+                                                                            <div class="mb-2">
+                                                                                <a @click="deleteDetailTransaction(item, d)" class="font-size-16 text-muted" role="button">
+                                                                                    <i class="mdi mdi-close"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="flex">
+                                                                            <div class="mb-2 mr-4">
+                                                                                <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Qty</label>
+                                                                                <input type="text" v-model="detail.qty" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, detail, 'qty')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                                            </div>
+                                                                            <div class="mb-2">
+                                                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Harga</label>
+                                                                                <input type="text" v-model="detail.price" placeholder="xxx" @keypress="[number($event)]" @input="[addDots($event, detail, 'price'), sumPrice(item)]" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="result pt-4 text-center">
+                                                                    <p @click="addDetailTransaction(item)" class="cursor-pointer"><span class="mdi mdi-plus text-center"></span> Tambah List</p>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div><!-- end card body -->
+                                                </div><!-- end card -->
+                                            </div><!-- end col -->
+                                        </div><!-- end row -->
                                     </div>
-                                </div>
-        
-                                <!-- Add more cards as needed -->
-                                <div class="bg-white rounded-lg shadow-md p-4 h-fit-content">
-                                    <div class="add-more">
-                                        <p @click="addTransaction"><span class="mdi mdi-plus text-center"></span> Tambah List</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-        
-                        <!-- Right Column -->
-                        <div class="w-1/4 p-4 bg-white max-h-fit m-16">
-                            <div class="mb-4">
-                                <p>Detail Informasi:</p>
-                            </div>
-                            <div v-if="$page.props.auth.user" class="mb-4">
-                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
-                                <input type="text" v-model="transaction.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                                <InputError class="mt-2" :message="transaction.errors.name" />
-                            </div>
-                            <div class="mb-4">
-                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Total Harga</label>
-                                <input type="text" v-model="transaction.total_payment" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_payment')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                            <div class="mb-4">
-                                <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Total Bayar</label>
-                                <input type="text" v-model="transaction.total_price" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_price')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                            </div>
-                            <div v-if="$page.props.auth.user" class="mb-4">
-                                <PrimaryButton>Simpan</PrimaryButton>
-                            </div>
-                        </div>
+
+                                </div><!-- end cardbody-->
+                            </div><!-- end card -->
+                        </div><!-- end w-100 -->
                     </div>
-                </form>
-            </div>
-        </div>
+                </div>
+
+                <div class="card filemanager-sidebar ms-lg-3">
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <p>Detail Informasi:</p>
+                        </div>
+                        <div v-if="$page.props.auth.user" class="mb-4">
+                            <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
+                            <input type="text" v-model="transaction.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            <InputError class="mt-2" :message="transaction.errors.name" />
+                        </div>
+                        <div class="mb-4">
+                            <label for="total-price-input" class="block text-sm font-medium text-gray-700">Total Harga</label>
+                            <input type="text" v-model="transaction.total_payment" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_payment')" name="total-price-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <div class="mb-4">
+                            <label for="total-amount-input" class="block text-sm font-medium text-gray-700">Total Bayar</label>
+                            <input type="text" v-model="transaction.total_price" placeholder="xxx" @keypress="[number($event)]" @input="addDots($event, transaction, 'total_price')" name="total-amount-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <div v-if="$page.props.auth.user" class="mb-4">
+                            <PrimaryButton :loading="state.loading">Simpan</PrimaryButton>
+                        </div>
+                    </div><!-- end card body -->
+                </div><!-- end card -->
+            </div><!-- end row -->
+        </form><!-- end form -->
     </AuthenticatedLayout>
 </template>

@@ -15,10 +15,10 @@
 
         <!-- Scripts -->
         @routes
-        @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+        @vite(['resources/assets/css/theme-default.css', 'resources/assets/js/app.js','resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased">
+    <body data-layout="horizontal" class="font-sans antialiased">
         @inertia
     </body>
 </html>
