@@ -1,9 +1,10 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Head from '@/Components/Head.vue';
 // import { Inertia } from '@inertiajs/inertia';
 import { Link, useForm, router } from '@inertiajs/vue3';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 defineProps({
     data: {
@@ -14,9 +15,13 @@ defineProps({
 let state = reactive({
     loading: false
 })
+const search = ref('')
 const form = useForm({});
 
 onMounted(() => {
+})
+watch(search, async (newData, oldData) => {
+    form.get(route('transactions', {search: newData}));
 })
 
 const changePage = (url) => {
@@ -59,7 +64,7 @@ const deleteData = (id) => {
                                 <div class="d-flex flex-wrap align-items-start gap-2">
                                     <div class="search-box ">
                                         <div class="position-relative">
-                                            <input type="text" class="form-control bg-light border-light rounded" placeholder="Search...">
+                                            <input type="text" class="form-control bg-light border-light rounded" placeholder="Search..." v-model="search">
                                             <i class="mdi mdi-table-search search-icon"></i>
                                         </div>
                                     </div>
@@ -67,9 +72,9 @@ const deleteData = (id) => {
                             </div><!-- end col -->
                             <div class="col-md-3 text-right">
                                 <div class="mb-3">
-                                    <a href="projects-create.html" class="btn btn-sm btn-outline-success">
-                                        <i class="mdi mdi-plus me-1"></i> Add New
-                                    </a>
+                                    <Link :href="route('dashboard')">
+                                        <PrimaryButton :loading="state.loading" icon="mdi-plus">Tambah Data</PrimaryButton>
+                                    </Link>
                                 </div>
                             </div><!-- end col -->
                         </div><!-- end row -->

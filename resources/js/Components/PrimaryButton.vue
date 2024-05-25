@@ -4,6 +4,9 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    icon: {
+        type: String
+    },
 });
 </script>
 <template>
@@ -12,5 +15,5 @@ defineProps({
     >
         
     </button> -->
-    <button class="btn btn-primary"><i v-if="loading" class="mdi mdi-loading mdi-spin"></i> <slot /></button>
+    <button class="btn btn-primary"><i v-if="icon" class="mdi" :class="icon"></i><i v-if="loading" class="mdi mdi-loading mdi-spin"></i> <slot /></button>
 </template>

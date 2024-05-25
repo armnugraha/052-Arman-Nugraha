@@ -29,8 +29,8 @@ class TransactionController extends Controller
 
         if (!in_array($request->string('search'), [null, "null", "", "undefined"])) {
             $data = $data->where(function($query) use ($request) {
-                $query->where('trx_code', $request->string('search'))
-                ->orWhere('name', $request->string('search'));
+                $query->where('trx_code', 'LIKE', '%' . $request->string('search') . '%')
+                ->orWhere('name', 'LIKE', '%' . $request->string('search') . '%');
             });
         }
 
