@@ -20,6 +20,10 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard');
     }
 
+    public function test() {
+        return response()->json(['success' => true]);
+    }
+
     /**
      * Redirect from short url.
      */
