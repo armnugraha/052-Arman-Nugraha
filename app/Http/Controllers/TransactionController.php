@@ -99,7 +99,7 @@ class TransactionController extends Controller
                                 OrderDetail::create([
                                     'order_id' => $create_order->id,
                                     'name' => $detail['name'],
-                                    'qty' => ,
+                                    'qty' => $qty,
                                     'price' => intval(str_replace('.','',$detail['price']))
                                 ]);
                         }
