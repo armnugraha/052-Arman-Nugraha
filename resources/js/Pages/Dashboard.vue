@@ -173,12 +173,7 @@ const submit = () => {
                                     <div>
                                         <div class="row mb-3">
                                             <div class="col-lg-4 col-sm-6">
-                                                <div class="search-box mb-2">
-                                                    <div class="position-relative">
-                                                        <input type="text" class="form-control bg-light border-light rounded" placeholder="Search...">
-                                                        <i class="mdi mdi-close-icon"></i>
-                                                    </div>
-                                                </div>
+                                                <h5 class="card-title mb-0"><span class="mdi mdi-calculator-variant-outline"></span> Estimasi Pengeluaran</h5>
                                             </div>
                                             <div class="col-lg-8 col-sm-6">
                                                 <div class="mt-4 mt-sm-0 d-flex align-items-center justify-content-sm-end">
