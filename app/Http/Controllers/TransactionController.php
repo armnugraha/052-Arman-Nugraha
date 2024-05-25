@@ -25,21 +25,21 @@ class TransactionController extends Controller
      */
     public function index(Request $request): Response
     {
-        $data = Transaction::where('user_id', $request->user()->id)
-                ->orderBy('id', 'DESC')
+        $data = Transaction::where('user_id', $request->user()->id);
+
+        if (!in_array($request->string('search'), [null, "null", "", "undefined"])) {
+            $data = $data->where(function($query) use ($request) {
+                $query->where('trx_code', $request->string('search'))
+                ->orWhere('name', $request->string('search'));
+            });
+        }
+
+        $data = $data->orderBy('id', 'DESC')
                 ->paginate(50);
 
         return Inertia::render('Transactions', [
             'data' => $data
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -49,6 +49,10 @@ class TransactionController extends Controller
     {
         // $request->validate([
         //     'total_price' => 'required|min:0|not_in:0',
+        // ]);
+
+        // throw ValidationException::withMessages([
+        //     'password' => __('auth.password'),
         // ]);
 
         // Start Transaction
@@ -182,8 +186,19 @@ class TransactionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Transaction $transaction)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+            // Get Transactions
+            $transaction = Transaction::findOrFail($id);
+
+            // Delete
+            $transaction->delete();
+        } catch (\Throwable $th) {
+            // something went wrong
+            throw new \Exception($th->getMessage());
+        }
+
+        return redirect(route('transactions', absolute: false));
     }
 }

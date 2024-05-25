@@ -1,13 +1,14 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 import Head from '@/Components/Head.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 
 let state = reactive({
-    loading: false
+    loading: false,
+    data: null
 })
 let transaction = useForm({
     name: '',
@@ -17,6 +18,11 @@ let transaction = useForm({
 })
 
 onMounted(() => {
+    // router.get(route('test'), {
+    //     onFinish: () => {
+    //         console.log('asd')
+    //     }
+    // })
     generateOrders()
 })
 

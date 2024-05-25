@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Transaction extends Model
 {
@@ -30,5 +31,21 @@ class Transaction extends Model
     public function getFormattedCreatedAtAttribute()
     {
         return $this->created_at->format('Y-m-d');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($transaction) {
+            foreach ($transaction->orders as $order) {
+                $order->delete();
+            }
+        });
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }

@@ -1,8 +1,9 @@
 <script setup>
+import { reactive, onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Head from '@/Components/Head.vue';
 // import { Inertia } from '@inertiajs/inertia';
-import { Link } from '@inertiajs/vue3';
+import { Link, useForm, router } from '@inertiajs/vue3';
 
 defineProps({
     data: {
@@ -10,9 +11,36 @@ defineProps({
     }
 });
 
+let state = reactive({
+    loading: false
+})
+const form = useForm({});
+
+onMounted(() => {
+})
+
 const changePage = (url) => {
     // Inertia.visit(url);
 }
+
+const deleteData = (id) => {
+    if(confirm('Apakah anda yakin untuk menghapus data?')){
+        state.loading = true
+        form.delete(route('transactions.destroy', {id: id}), {
+            // preserveScroll: true,
+            onSuccess: (e) => {
+                alertify.success("Data berhasil dihapus")
+                state.loading = false
+            },
+            // onError: () => null,
+            // onFinish: () => null,
+            onError: (e) => {
+                alertify.failed("Oops something went wrong")
+                state.loading = false
+            }
+        });
+    }
+};
 </script>
 
 <template>
@@ -71,7 +99,27 @@ const changePage = (url) => {
                                         <td>Rp {{ item.total_payment.toLocaleString('id-ID', {maximumFractionDigits:0}) }}</td>
                                         <td>Rp {{ item.total_price.toLocaleString('id-ID', {maximumFractionDigits:0}) }}</td>
                                         <td>{{ item.formatted_created_at }}</td>
-                                        <td></td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <a href="#" class="dropdown-toggle card-drop"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i
+                                                        class="mdi mdi-dots-horizontal font-size-18 text-muted"></i>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a href="#" class="dropdown-item">
+                                                            <i class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" class="dropdown-item" @click="deleteData(item.id)">
+                                                            <i class="mdi mdi-trash-can font-size-16 text-danger me-1"></i> Delete
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody><!-- end tbody -->
                             </table><!-- end table -->
