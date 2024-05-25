@@ -81,22 +81,28 @@ class TransactionController extends Controller
             
             // Create orders
             foreach ($request->orders as $order) {
-                $create_order = Order::create([
-                    'transaction_id' => $transaction->id,
-                    'name' => $order['name'],
-                    'total_price' => intval(str_replace('.','',$order['total_price']))
-                ]);
+                $total_price = intval(str_replace('.','',$order['total_price']));
 
-                // Create order detail
-                if ($order['temp']['is_detail'])
-                    foreach ($order['detail'] as $detail) {
-                        OrderDetail::create([
-                            'order_id' => $create_order->id,
-                            'name' => $detail['name'],
-                            'qty' => intval(str_replace('.','',$detail['qty'])),
-                            'price' => intval(str_replace('.','',$detail['price']))
-                        ]);
-                    }
+                if ($total_price > 0)
+                    $create_order = Order::create([
+                        'transaction_id' => $transaction->id,
+                        'name' => $order['name'],
+                        'total_price' => $total_price
+                    ]);
+    
+                    // Create order detail
+                    if ($order['temp']['is_detail'])
+                        foreach ($order['detail'] as $detail) {
+                            $qty = intval(str_replace('.','',$detail['qty']));
+
+                            if ($qty > 0)
+                                OrderDetail::create([
+                                    'order_id' => $create_order->id,
+                                    'name' => $detail['name'],
+                                    'qty' => ,
+                                    'price' => intval(str_replace('.','',$detail['price']))
+                                ]);
+                        }
             }
 
             // All success
