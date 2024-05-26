@@ -113,13 +113,18 @@ const deleteData = (id) => {
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
+                                                        <a :href="route('transactions.show', {id: item.id})" class="dropdown-item">
+                                                            <i class="mdi mdi-information-outline font-size-16 text-primary me-1"></i> Detail
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <a href="#" class="dropdown-item">
                                                             <i class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit
                                                         </a>
                                                     </li>
                                                     <li>
                                                         <a href="#" class="dropdown-item" @click="deleteData(item.id)">
-                                                            <i class="mdi mdi-trash-can font-size-16 text-danger me-1"></i> Delete
+                                                            <i class="mdi mdi-trash-can font-size-16 text-danger me-1"></i> Hapus
                                                         </a>
                                                     </li>
                                                 </ul>

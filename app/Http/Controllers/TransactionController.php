@@ -119,9 +119,20 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Transaction $transaction)
+    public function show(Request $request, $id)
     {
-        //
+        $data = Transaction::with(['user', 'orders', 'orders.orderDetails'])
+                ->where('user_id', $request->user()->id)
+                ->whereId($id)
+                ->first();
+        
+        if (!$data) {
+            abort(404);
+        }
+
+        return Inertia::render('TransactionsDetail', [
+            'data' => $data
+        ]);
     }
 
     /**
