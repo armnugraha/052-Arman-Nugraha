@@ -8,6 +8,10 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 defineProps({
     data: {
         type: Object,
+    },
+    public: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -126,7 +130,7 @@ const copyText = (val) => {
                                 </tbody><!-- end tbody -->
                             </table><!-- end table -->
                         </div><!-- end table responsive -->
-                        <div class="d-print-none mt-4">
+                        <div v-if="!public" class="d-print-none mt-4">
                             <div class="float-end">
                                 <button type="button" class="btn btn-soft-secondary mr-4">{{ data.short_url }}</button>
                                 <button type="button" @click="copyText(data.short_url)" class="btn btn-primary"><i class="mdi mdi-content-copy me-2"></i> Salin URL</button>

@@ -47,7 +47,17 @@ class DashboardController extends Controller
         if (!$request->hasValidSignature())
             abort(404);
 
-        dd('masuk');
-        return Inertia::render('Dashboard');
+        $data = Transaction::with(['user', 'orders', 'orders.orderDetails'])
+            ->whereId($id)
+            ->first();
+    
+        if (!$data) {
+            abort(404);
+        }
+
+        return Inertia::render('Invoice', [
+            'data' => $data,
+            'public' => true
+        ]);
     }
 }
