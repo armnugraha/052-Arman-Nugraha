@@ -232,11 +232,15 @@ const submit = () => {
                                                             </div>
                                                             <template v-if="item.temp.is_detail">
                                                                 <div class="mt-4 result">
+                                                                    <div class="m-3">
+                                                                        <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
+                                                                        <input type="text" v-model="item.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                                    </div>
                                                                     <div v-for="(detail, d) in item.detail" :key="d" class="detail-item">
                                                                         <div class="flex space-between">
                                                                             <div class="mb-2 mr-4">
-                                                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Nama</label>
-                                                                                <input type="text" v-model="detail.name" placeholder="Kasih nama / judul dong" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                                                                <label for="total-price-input" class="block text-sm font-medium text-gray-700">Menu</label>
+                                                                                <input type="text" v-model="detail.name" placeholder="Nama menu" name="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                                                                             </div>
                                                                             <div class="mb-2">
                                                                                 <a @click="deleteDetailTransaction(item, d)" class="font-size-16 text-muted" role="button">
