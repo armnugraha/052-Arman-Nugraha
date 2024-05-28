@@ -95,7 +95,7 @@ const deleteData = (id) => {
                                 </thead>
                                 <tbody>
                                     <tr v-if="!data.data.length">
-                                        <td colspan="6" class="text-center">Data tidak ditemukan</td>
+                                        <td colspan="7" class="text-center">Data tidak ditemukan</td>
                                     </tr>
                                     <tr v-for="(item, i) in data.data" :key="i">
                                         <th scope="row">{{ i+1 }}</th>
@@ -113,9 +113,11 @@ const deleteData = (id) => {
                                                 </a>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li>
-                                                        <a :href="route('transactions.show', {id: item.id})" class="dropdown-item">
-                                                            <i class="mdi mdi-information-outline font-size-16 text-primary me-1"></i> Detail
-                                                        </a>
+                                                        <Link :href="route('transactions.show', {id: item.id})">
+                                                            <a class="dropdown-item">
+                                                                <i class="mdi mdi-information-outline font-size-16 text-primary me-1"></i> Detail
+                                                            </a>
+                                                        </Link>
                                                     </li>
                                                     <li>
                                                         <a href="#" class="dropdown-item">
@@ -136,7 +138,7 @@ const deleteData = (id) => {
                         </div><!-- end table responsive-->
                     </div><!-- end card body -->
 
-                    <div class="row m-2">
+                    <div v-if="data.total" class="row m-2">
                         <div class="col-sm-6">
                             <div>
                                 <p class="mb-sm-0">{{ `Showing ${data.current_page} to ${data.last_page} of ${data.total} entries` }}</p>
