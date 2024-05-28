@@ -1,162 +1,179 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { useForm, router } from '@inertiajs/vue3';
-import Head from '@/Components/Head.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import InputError from '@/Components/InputError.vue';
+    import { reactive, onMounted } from 'vue';
+    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import { useForm, router } from '@inertiajs/vue3';
+    import Head from '@/Components/Head.vue';
+    import PrimaryButton from '@/Components/PrimaryButton.vue';
+    import InputError from '@/Components/InputError.vue';
 
-let state = reactive({
-    loading: false,
-    data: null
-})
-let transaction = useForm({
-    name: '',
-    total_payment: 0,
-    total_price: 0,
-    orders: []
-})
+    let state = reactive({
+        loading: false,
+        data: null
+    })
+    let transaction = useForm({
+        name: '',
+        total_payment: 0,
+        total_price: 0,
+        orders: []
+    })
 
-onMounted(() => {
-    // router.get(route('test'), {
-    //     onFinish: () => {
-    //         console.log('asd')
-    //     }
-    // })
-    generateOrders()
-})
+    onMounted(() => {
+        // router.get(route('test'), {
+        //     onFinish: () => {
+        //         console.log('asd')
+        //     }
+        // })
+        generateOrders()
+    })
 
-const generateOrders = () => {
-    for (let index = 0; index < 4; index++) {
-        transaction.orders.push({
-            name: null,
-            total_price: 0,
-            detail: [
-                {
-                    name: null,
-                    qty: 0,
-                    price: 0,
+    const generateOrders = () => {
+        for (let index = 0; index < 4; index++) {
+            transaction.orders.push({
+                name: null,
+                total_price: 0,
+                detail: [
+                    {
+                        name: null,
+                        qty: 0,
+                        price: 0,
+                    }
+                ],
+                temp: {
+                    is_detail: false,
+                    discount_price: 0,
+                    discount_percent: 0
                 }
-            ],
-            temp: {
-                is_detail: false,
-                discount_price: 0,
-                discount_percent: 0
-            }
-        })
+            })
+        }
     }
-}
 
-const changeDetail = (e) => {
-    e.total_price = 0
+    const changeDetail = (e) => {
+        e.total_price = 0
 
-    e.temp.is_detail = !e.temp.is_detail
-    e.temp.discount_price = 0
-    e.temp.discount_percent = 0
-}
+        e.temp.is_detail = !e.temp.is_detail
+        e.temp.discount_price = 0
+        e.temp.discount_percent = 0
+    }
 
-const addTransaction = () => {
-    transaction.orders.push(
-        {
-            name: null,
-            total_price: 0,
-            detail: [
-                {
-                    name: null,
-                    qty: 0,
-                    price: 0,
+    const addTransaction = () => {
+        transaction.orders.push(
+            {
+                name: null,
+                total_price: 0,
+                detail: [
+                    {
+                        name: null,
+                        qty: 0,
+                        price: 0,
+                    }
+                ],
+                temp: {
+                    is_detail: false,
+                    discount_price: 0,
+                    discount_percent: 0
                 }
-            ],
-            temp: {
-                is_detail: false,
-                discount_price: 0,
-                discount_percent: 0
             }
-        }
-    )
-};
-const deleteTransaction = (index) => {
-    transaction.orders.splice(index, 1);
-};
+        )
+    };
+    const deleteTransaction = (index) => {
+        transaction.orders.splice(index, 1);
+    };
 
-const addDetailTransaction = (item) => {
-    item.detail.push(
-        {
-            name: null,
-            qty: 0,
-            price: 0
-        }
-    )
-};
-const deleteDetailTransaction = (item, index) => {
-    item.detail.splice(index, 1);
-};
-
-const number = (e) => {
-    e = (e) ? e : window.event;
-    var charCode = (e.which) ? e.which : e.keyCode;
-    
-    if (charCode === 46) {
-        e.preventDefault();
-    }
-
-    if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
-        e.preventDefault();
-    } else {
-        return true;
-    }
-}
-const addDots = (e, val, obj) => {
-    val[obj] = Number(e.target.value.replace(/[^0-9]/g, '')).toLocaleString('id-ID', {maximumFractionDigits:0})
-}
-const removeSeparator = (val) => {
-    return val?.toString()?.replaceAll('.', '')
-}
-
-const sumPrice = (item) => {
-    const sum = item.detail?.reduce((i, trx) => i + (parseInt(trx.qty) * removeSeparator(trx.price)), 0);
-    item.total_price = Number(sum).toLocaleString('id-ID', {maximumFractionDigits:0})
-}
-
-const discount = (e) => {
-    const priceNumber = removeSeparator(e.total_price),
-        total_payment   = removeSeparator(transaction.total_payment),
-        total_price = removeSeparator(transaction.total_price);
-
-    e.temp.discount_price = priceNumber ? Math.round( ((priceNumber) / total_payment*total_price) ).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 0
-    return !isNaN(e.temp.discount_price) ? e.temp.discount_price : 0;
-}
-const percentDiscount = (e) => {
-    const price = removeSeparator(transaction.total_price),
-        discount = removeSeparator(e.temp.discount_price),
-        percent = ((discount / price) * 100).toFixed();
-        e.temp.discount_percent = percent
-
-    return !isNaN(percent) ? percent : 0
-}
-
-const submit = () => {
-    if(confirm('Apakah data sudah benar?')){
-        state.loading = true
-        transaction.post(route('transactions.create'), {
-            onFinish: () => {
-                alertify.success("Data berhasil dibuat")
-                transaction.reset('name', 'total_payment', 'total_price')
-                transaction.name = ''
-                transaction.total_payment = 0
-                transaction.total_price = 0
-                transaction.orders = []
-                generateOrders()
-                state.loading = false
-            },
-            onError: (e) => {
-                alertify.failed("Oops something went wrong")
-                state.loading = false
+    const addDetailTransaction = (item) => {
+        item.detail.push(
+            {
+                name: null,
+                qty: 0,
+                price: 0
             }
-        });
+        )
+    };
+    const deleteDetailTransaction = (item, index) => {
+        item.detail.splice(index, 1);
+    };
+
+    const number = (e) => {
+        e = (e) ? e : window.event;
+        var charCode = (e.which) ? e.which : e.keyCode;
+        
+        if (charCode === 46) {
+            e.preventDefault();
+        }
+
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+            e.preventDefault();
+        } else {
+            return true;
+        }
     }
-};
+    const addDots = (e, val, obj) => {
+        val[obj] = Number(e.target.value.replace(/[^0-9]/g, '')).toLocaleString('id-ID', {maximumFractionDigits:0})
+    }
+    const removeSeparator = (val) => {
+        return val?.toString()?.replaceAll('.', '')
+    }
+
+    const sumPrice = (item) => {
+        const sum = item.detail?.reduce((i, trx) => i + (parseInt(trx.qty) * removeSeparator(trx.price)), 0);
+        item.total_price = Number(sum).toLocaleString('id-ID', {maximumFractionDigits:0})
+    }
+
+    const discount = (e) => {
+        const priceNumber = removeSeparator(e.total_price),
+            total_payment   = removeSeparator(transaction.total_payment),
+            total_price = removeSeparator(transaction.total_price);
+
+        e.temp.discount_price = priceNumber ? Math.round( ((priceNumber) / total_payment*total_price) ).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 0
+        return !isNaN(e.temp.discount_price) ? e.temp.discount_price : 0;
+    }
+    const percentDiscount = (e) => {
+        const price = removeSeparator(transaction.total_price),
+            discount = removeSeparator(e.temp.discount_price),
+            percent = ((discount / price) * 100).toFixed();
+            e.temp.discount_percent = percent
+
+        return !isNaN(percent) ? percent : 0
+    }
+
+    const submit = () => {
+        if(confirm('Apakah data sudah benar?')){
+            state.loading = true
+            transaction.post(route('transactions.create'), {
+                onFinish: () => {
+                    alertify.success("Data berhasil dibuat")
+                    transaction.reset('name', 'total_payment', 'total_price')
+                    transaction.name = ''
+                    transaction.total_payment = 0
+                    transaction.total_price = 0
+                    transaction.orders = []
+                    generateOrders()
+                    state.loading = false
+                },
+                onError: (e) => {
+                    alertify.failed("Oops something went wrong")
+                    state.loading = false
+                }
+            });
+        }
+    };
 </script>
+
+<style scoped>
+    .calculator {
+        border-right: none !important;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .filemanager-sidebar {
+        border-left: none !important;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
+</style>
 
 <template>
     
@@ -168,7 +185,7 @@ const submit = () => {
                 <div class="w-100">
                     <div class="d-md-flex">
                         <div class="w-100">
-                            <div class="card">
+                            <div class="card calculator">
                                 <div class="card-body">
                                     <div>
                                         <div class="row mb-3">
@@ -278,7 +295,7 @@ const submit = () => {
                     </div>
                 </div>
 
-                <div class="card filemanager-sidebar ms-lg-3">
+                <div class="card filemanager-sidebar">
                     <div class="card-body">
                         <div class="mb-4">
                             <p>Detail Informasi:</p>
