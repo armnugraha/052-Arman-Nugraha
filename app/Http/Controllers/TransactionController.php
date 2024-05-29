@@ -138,47 +138,83 @@ class TransactionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Transaction $transaction)
+    public function edit(Request $request, $id)
+    {
+        $data = Transaction::with(['user', 'orders', 'orders.orderDetails'])
+                ->where('user_id', $request->user()->id)
+                ->whereId($id)
+                ->first();
+        
+        if (!$data) {
+            abort(404);
+        }
+
+        return Inertia::render('Dashboard', [
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
     {
         // Start Transaction
         DB::beginTransaction();
         try {
-            // Create
-            $transaction = Transaction::create([
-                'user_id' => $request->user()->id,
-                'trx_code' => 'INV/'.Carbon::now()->format('Ymd').'/MVS/'.(string)Str::uuid(),
+            // Update Transaction
+            Transaction::where('user_id', $request->user()->id)
+            ->whereId($id)
+            ->update([
+                'name' => $request->name,
                 'total_price' => intval(str_replace('.','',$request->total_price)),
                 'total_payment' => intval(str_replace('.','',$request->total_payment))
             ]);
 
-            // Update URL Public
-            $short_url = route('sh', ['code' => Str::random(16)]);
-            $full_url = URL::signedRoute(
-                'invoice', ['id' => $transaction->id]
-            );
-            $transaction->update([
-                'short_url' => $short_url,
-                'full_url' => $full_url
-            ]);
-            
-            // Create orders
+            // Update orders
             foreach ($request->orders as $order) {
-                $create_order = Order::create([
-                    'transaction_id' => $transaction->id,
-                    'name' => $order['name'],
-                    'total_price' => intval(str_replace('.','',$order['total_price']))
-                ]);
+                $total_price = intval(str_replace('.','',$order['total_price']));
 
-                // Create order detail
-                if ($order['temp']['is_detail'])
-                    foreach ($order['detail'] as $detail) {
-                        OrderDetail::create([
-                            'order_id' => $create_order->id,
-                            'name' => $detail['name'],
-                            'qty' => intval(str_replace('.','',$detail['qty'])),
-                            'price' => intval(str_replace('.','',$detail['price']))
+                if ($total_price > 0)
+                    if (isset($order['id'])) {
+                        $update_order = Order::whereId($order['id'])
+                        ->update([
+                            'name' => $order['name'],
+                            'total_price' => $total_price
                         ]);
+
+                        $order_id = $order['id'];
+                    }else{
+                        $update_order = Order::create([
+                            'transaction_id' => $id,
+                            'name' => $order['name'],
+                            'total_price' => $total_price
+                        ]);
+                        $order_id = $update_order->id;
                     }
+    
+                    // Update order detail
+                    if ($order['temp']['is_detail'])
+                        foreach ($order['detail'] as $detail) {
+                            $qty = intval(str_replace('.','',$detail['qty']));
+
+                            if ($qty > 0)
+                                if (isset($detail['id'])) {
+                                    OrderDetail::whereId($detail['id'])
+                                    ->update([
+                                        'name' => $detail['name'],
+                                        'qty' => $qty,
+                                        'price' => intval(str_replace('.','',$detail['price']))
+                                    ]);
+                                }else{
+                                    OrderDetail::create([
+                                        'order_id' => $order_id,
+                                        'name' => $detail['name'],
+                                        'qty' => $qty,
+                                        'price' => intval(str_replace('.','',$detail['price']))
+                                    ]);
+                                }
+                        }
             }
 
             // All success
@@ -189,15 +225,7 @@ class TransactionController extends Controller
             DB::rollback();
         }
 
-        return redirect(route('dashboard', absolute: false));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Transaction $transaction)
-    {
-        //
+        return redirect(route('transactions', absolute: false));
     }
 
     /**

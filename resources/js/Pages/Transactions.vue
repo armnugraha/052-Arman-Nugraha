@@ -120,9 +120,11 @@ const deleteData = (id) => {
                                                         </Link>
                                                     </li>
                                                     <li>
-                                                        <a href="#" class="dropdown-item">
-                                                            <i class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit
-                                                        </a>
+                                                        <Link :href="route('transactions.edit', {id: item.id})">
+                                                            <a class="dropdown-item">
+                                                                <i class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit
+                                                            </a>
+                                                        </Link>
                                                     </li>
                                                     <li>
                                                         <a href="#" class="dropdown-item" @click="deleteData(item.id)">

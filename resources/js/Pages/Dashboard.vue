@@ -6,6 +6,13 @@
     import PrimaryButton from '@/Components/PrimaryButton.vue';
     import InputError from '@/Components/InputError.vue';
 
+    const props = defineProps({
+        data: {
+            type: Object,
+            default: null
+        }
+    });
+
     let state = reactive({
         loading: false,
         data: null
@@ -23,7 +30,37 @@
         //         console.log('asd')
         //     }
         // })
-        generateOrders()
+        if (props.data) {
+            transaction.name = props.data.name
+            transaction.total_payment = props.data.total_payment.toLocaleString('id-ID', {maximumFractionDigits:0})
+            transaction.total_price = props.data.total_price.toLocaleString('id-ID', {maximumFractionDigits:0})
+            transaction.orders = []
+            
+            props.data.orders.forEach(e => {
+                let raw = {
+                    id: e.id,
+                    name: e.name,
+                    total_price: e.total_price.toLocaleString('id-ID', {maximumFractionDigits:0}),
+                    detail: e.order_details,
+                    temp: {
+                        is_detail: false,
+                        discount_price: 0,
+                        discount_percent: 0
+                    }
+                }
+
+                if (e.order_details.length) {
+                    raw.temp.is_detail = true
+                    // raw.temp.discount_price = discount(e)
+                    // raw.temp.discount_percent = percentDiscount(e)
+                }
+
+                transaction.orders.push(raw)
+            });
+        }
+        else{
+            generateOrders()
+        }
     })
 
     const generateOrders = () => {
@@ -138,22 +175,40 @@
     const submit = () => {
         if(confirm('Apakah data sudah benar?')){
             state.loading = true
-            transaction.post(route('transactions.create'), {
-                onFinish: () => {
-                    alertify.success("Data berhasil dibuat")
-                    transaction.reset('name', 'total_payment', 'total_price')
-                    transaction.name = ''
-                    transaction.total_payment = 0
-                    transaction.total_price = 0
-                    transaction.orders = []
-                    generateOrders()
-                    state.loading = false
-                },
-                onError: (e) => {
-                    alertify.failed("Oops something went wrong")
-                    state.loading = false
-                }
-            });
+            // Create
+            if (!props.data) {
+                transaction.post(route('transactions.create'), {
+                    onFinish: () => {
+                        alertify.success("Data berhasil dibuat")
+                        transaction.reset('name', 'total_payment', 'total_price')
+                        transaction.name = ''
+                        transaction.total_payment = 0
+                        transaction.total_price = 0
+                        transaction.orders = []
+                        generateOrders()
+                        state.loading = false
+                    },
+                    onError: (e) => {
+                        alertify.failed("Oops something went wrong")
+                        state.loading = false
+                    }
+                });
+            }
+            // Update
+            else{
+                transaction.put(route('transactions.update', {id: props.data.id}), {
+                    onFinish: () => {
+                        alertify.success("Data berhasil diubah")
+                        transaction.reset('name', 'total_payment', 'total_price')
+                        state.loading = false
+                    },
+                    onError: (e) => {
+                        alertify.failed("Oops something went wrong")
+                        state.loading = false
+                    }
+                });
+            }
+
         }
     };
 </script>
@@ -206,6 +261,7 @@
 
                                     <div>
                                         <div class="row">
+                                        {{transaction}}
                                             <div v-for="(item, i) in transaction.orders" :key="i" class="col-xl-4 col-sm-6">
                                                 <div class="card shadow-none border">
                                                     <div class="card-body p-3">
@@ -219,7 +275,7 @@
                                                             </div>
                                                             <div class="me-3 mb-3">
                                                                 <div class="form-check form-switch form-switch-md mb-2">
-                                                                    <input class="form-check-input" type="checkbox" :disabled="!$page.props.auth.user" @change="$page.props.auth.user ? changeDetail(item) : null">
+                                                                    <input class="form-check-input" :checked="item.temp.is_detail" type="checkbox" :disabled="!$page.props.auth.user" @change="$page.props.auth.user ? changeDetail(item) : null">
                                                                 </div>
                                                             </div>
                                                             <div>

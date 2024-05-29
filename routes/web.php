@@ -22,8 +22,10 @@ Route::get('/invoice/detail/{id}', [DashboardController::class, 'invoice'])->nam
 
 Route::middleware('auth')->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
+    Route::get('/transactions/edit/{id}', [TransactionController::class, 'edit'])->name('transactions.edit');
     Route::get('/transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.create');
+    Route::put('/transactions/update/{id}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
