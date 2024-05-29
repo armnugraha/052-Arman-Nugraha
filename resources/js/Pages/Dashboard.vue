@@ -261,7 +261,6 @@
 
                                     <div>
                                         <div class="row">
-                                        {{transaction}}
                                             <div v-for="(item, i) in transaction.orders" :key="i" class="col-xl-4 col-sm-6">
                                                 <div class="card shadow-none border">
                                                     <div class="card-body p-3">
