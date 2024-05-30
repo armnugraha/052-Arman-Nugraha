@@ -20,16 +20,14 @@ class Order extends Model
         'name',
         'total_price'
     ];
-
-    public function transaction()
-    {
-        return $this->belongsTo(Transaction::class);
-    }
-
+    
+    /**
+     * Delete data order details if self delete.
+     */
     protected static function boot()
     {
         parent::boot();
-
+        
         static::deleting(function ($order) {
             foreach ($order->orderDetails as $orderDetail) {
                 $orderDetail->delete();
@@ -37,6 +35,17 @@ class Order extends Model
         });
     }
 
+    /**
+     * One to one.
+     */
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
+    }
+
+    /**
+     * One to many.
+     */
     public function orderDetails(): HasMany
     {
         return $this->hasMany(OrderDetail::class);

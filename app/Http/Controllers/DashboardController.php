@@ -7,8 +7,6 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\URL;
 
 class DashboardController extends Controller
 {
@@ -17,11 +15,7 @@ class DashboardController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Dashboard');
-    }
-
-    public function test() {
-        return response()->json(['success' => true]);
+        return Inertia::render('Dashboard/Dashboard');
     }
 
     /**
@@ -55,7 +49,7 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        return Inertia::render('Invoice', [
+        return Inertia::render('Transaction/Invoice', [
             'data' => $data,
             'public' => true
         ]);

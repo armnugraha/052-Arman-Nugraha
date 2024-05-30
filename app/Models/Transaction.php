@@ -27,12 +27,17 @@ class Transaction extends Model
 
     protected $appends = ['formatted_created_at'];
 
-    // Accessor for formatted_created_at
+    /**
+     * Accessor for formatted_created_at.
+     */
     public function getFormattedCreatedAtAttribute()
     {
         return $this->created_at->format('Y-m-d');
     }
-
+ 
+    /**
+     * Delete data order if self delete.
+     */
     protected static function boot()
     {
         parent::boot();
@@ -44,11 +49,17 @@ class Transaction extends Model
         });
     }
 
+    /**
+     * One to one.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * One to many.
+     */
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

@@ -37,7 +37,7 @@ class TransactionController extends Controller
         $data = $data->orderBy('id', 'DESC')
                 ->paginate(50);
 
-        return Inertia::render('Transactions', [
+        return Inertia::render('Transaction/Transactions', [
             'data' => $data
         ]);
     }
@@ -130,7 +130,7 @@ class TransactionController extends Controller
             abort(404);
         }
 
-        return Inertia::render('TransactionsDetail', [
+        return Inertia::render('Transaction/TransactionsDetail', [
             'data' => $data
         ]);
     }
@@ -149,7 +149,7 @@ class TransactionController extends Controller
             abort(404);
         }
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Dashboard/Dashboard', [
             'data' => $data
         ]);
     }

@@ -21,6 +21,9 @@ class OrderDetail extends Model
         'price'
     ];
 
+    /**
+     * One to one.
+     */
     public function order()
     {
         return $this->belongsTo(Order::class);
